@@ -1,0 +1,24 @@
+# Machine-readable entry for this repository. Aggregated into public-software/catalog.
+# Edit here; `pub catalog sync` propagates description, topics and custom properties to GitHub.
+
+[repo]
+name        = "catalog"
+ring        = "spine"          # spine | platform | system | domain | standards
+layers      = ["L18"]
+wave        = 1
+tier        = "incubating"        # incubating | stable | core | archived
+maintainers = ["maint-catalog"]
+summary     = "Machine-readable ledger + roadmap; source of truth for GitHub descriptions, topics, properties and the org README."
+
+# One [[component]] per crate, app or service this workspace publishes.
+# planned: catalog.toml aggregate · schema · site generator · plugin registry · blob-free hardware list
+#
+# [[component]]
+# crate     = "pub-catalog-example"
+# kind      = "lib"                # lib | app | service | plugin | spec
+# ledger    = "<ledger entry name>"
+# readiness = "none"               # shipped | partial | seed | none
+# effort    = 3
+# specs     = []
+# provides  = ["public:area/iface@1"]
+# requires  = []
