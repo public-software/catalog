@@ -11,6 +11,7 @@
 
 [catalog]
 version = 1
+org     = "public-software"
 
 [[repo]]
 name     = "catalog"
