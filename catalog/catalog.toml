@@ -12,6 +12,7 @@
 [catalog]
 version = 1
 org     = "public-software"
+site    = "https://publicsoftware.dev"
 
 [[repo]]
 name     = "catalog"

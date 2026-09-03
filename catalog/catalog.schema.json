@@ -9,7 +9,7 @@
   "properties": {
     "catalog": {
       "type": "object",
-      "required": ["version", "org"],
+      "required": ["version", "org", "site"],
       "additionalProperties": false,
       "properties": {
         "version": { "const": 1 },
@@ -17,6 +17,11 @@
           "type": "string",
           "pattern": "^[a-z0-9]([a-z0-9-]{0,37}[a-z0-9])?$",
           "description": "the GitHub organization every repository belongs to"
+        },
+        "site": {
+          "type": "string",
+          "pattern": "^https://[^\\s/]+$",
+          "description": "the organization's site; a repository's homepage is <site>/<name>"
         }
       }
     },
