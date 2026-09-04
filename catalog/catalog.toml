@@ -16,7 +16,7 @@ site    = "https://publicsoftware.dev"
 
 [[repo]]
 name     = "catalog"
-ring     = "spine"
+ring     = "spin"
 wave     = 1
 layers   = ["L18"]
 purpose  = "Machine-readable ledger + roadmap; source of truth for GitHub descriptions, topics, properties and the org README."
