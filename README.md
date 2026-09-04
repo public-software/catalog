@@ -13,20 +13,33 @@ Planned components: catalog.toml aggregate · schema · site generator · plugin
 
 ## In 30 seconds
 
-_A runnable example goes here the day the first crate lands._
+[`catalog/catalog.toml`](catalog/catalog.toml) lists every repository of Public Software with its ring, layers, wave, purpose and planned contents. [`catalog/catalog.schema.json`](catalog/catalog.schema.json) is its JSON Schema (2020-12), served at `https://publicsoftware.dev/catalog.schema.json`, the schema's `$id`. GitHub descriptions, topics, custom properties, the organization README, the site and the brand are generated from the catalog.
 
-## What it does
+```sh
+cargo install --git https://github.com/public-software/pub pub-cli    # the `pub` binary
+pub catalog validate --catalog catalog/catalog.toml               # what CI runs
+pub catalog render json --catalog catalog/catalog.toml            # every repository as JSON
+```
 
-## What it does not do (yet)
+Tooling pins a release, never `main`:
 
-## Status
+```
+https://raw.githubusercontent.com/public-software/catalog/v1.0.0/catalog/catalog.toml
+https://raw.githubusercontent.com/public-software/catalog/v1.0.0/catalog/catalog.schema.json
+```
 
-| Ledger entry | Readiness | Next |
-|---|---|---|
+## Releases
 
-## How it fits the suite
+The current release is `v1.0.0`. Releases are immutable: the tag and the files at it never change once published; a mistake is fixed in the next release. The version follows the policy in [CHANGELOG.md](CHANGELOG.md): a repository added is a minor release, a repository renamed or removed is a major one, wording is a patch.
 
-Implements: _none yet_ · Requires: _none yet_ (see `CATALOG.toml`)
+## Changing the catalog
+
+1. Edit `catalog/catalog.toml` in a pull request and add a line under `Unreleased` in [CHANGELOG.md](CHANGELOG.md); `catalog.yml` fails a pull request that changes the catalog without one.
+2. `catalog.yml` runs `pub catalog validate` on the pull request and again in the merge queue, and proves the validator still rejects a seeded violation.
+3. After the merge a maintainer runs `pub catalog sync`, which converges every repository's description, homepage, topics and the `ring`, `wave` and `layers` custom properties on GitHub.
+4. A release is cut by the maintainers of this repository (`public-software/maint-catalog`): the `Unreleased` lines move under the new version heading and the tag is published as an immutable release.
+
+Until the bootstrap kit is retired it carries the same files (`config/catalog.toml`, `config/catalog.schema.json`, `templates/repos/catalog/`); its step 05 pushes them here when they differ and publishes the release named by `CATALOG_VERSION` in its `config/org.env`.
 
 ## Contributing
 

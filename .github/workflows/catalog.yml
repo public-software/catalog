@@ -1,0 +1,54 @@
+# The catalog under catalog/: validated by `pub catalog validate` on every change, on the pull request and in
+# the merge queue alike (one check run, "validate", so one ruleset serves both). suite / * (ci.yml) still runs;
+# this workflow is the catalog's own check.
+name: catalog
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+permissions:
+  contents: read
+env:
+  # the pub commit the validator is built from; bumped deliberately, the way an action SHA is bumped
+  CLI_REV: 869f327501db100ae27e9d79cdb5b6cf315f5bec
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - run: rustup update --no-self-update stable && rustup default stable   # the runner ships rustup
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: pub-cli-${{ env.CLI_REV }}   # ~/.cargo/bin is cached, so a warm run installs nothing
+          cache-targets: false
+      - name: Install pub at the pinned commit
+        run: cargo install --locked --git https://github.com/public-software/pub --rev "$CLI_REV" pub-cli
+      - name: Validate the catalog against its rules
+        run: pub catalog validate --catalog catalog/catalog.toml
+      - name: The validator has teeth (a seeded violation must fail)
+        run: |
+          set -euo pipefail
+          sed 's/^ring     = "spine"/ring     = "spin"/' catalog/catalog.toml > "$RUNNER_TEMP/seeded.toml"
+          ! pub catalog validate --catalog "$RUNNER_TEMP/seeded.toml" 2>/dev/null \
+            || { echo "::error::the validator accepted a seeded schema violation (ring \"spin\")"; exit 1; }
+      - name: The schema $id is where the site serves it
+        run: |
+          set -euo pipefail
+          id="$(jq -r '."$id"' catalog/catalog.schema.json)"
+          [ "$id" = "https://publicsoftware.dev/catalog.schema.json" ] \
+            || { echo "::error::catalog.schema.json declares \$id $id, expected https://publicsoftware.dev/catalog.schema.json"; exit 1; }
+      - name: A catalog change carries a CHANGELOG entry
+        # runs after a failed validate too (not after a cancel), so one run shows every finding
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git fetch -q --depth=1 origin "$BASE"
+          changed="$(git diff --name-only "$BASE" HEAD)"
+          if grep -qx 'catalog/catalog.toml' <<<"$changed" && ! grep -qx 'CHANGELOG.md' <<<"$changed"; then
+            echo "::error::catalog/catalog.toml changed without a line under Unreleased in CHANGELOG.md"; exit 1
+          fi
